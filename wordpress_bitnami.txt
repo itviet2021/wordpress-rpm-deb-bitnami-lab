@@ -3,6 +3,8 @@
 
 apt update && apt -y install libtinfo5
 
+--> CentOS 8 thì chỉ chạy lệnh dưới
+
 -- Cài bitnami wordpress tự động --> đọc các tham số từ file params
 
 curl -LO https://bitnami.com/redirect/to/1603410/bitnami-wordpress-5.8-0-linux-x64-installer.run && \

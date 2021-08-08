@@ -1,0 +1,49 @@
+
+-- 0. Tắt selinux + firewalld
+
+setenforce 0 && \
+systemctl stop firewalld
+
+-- 1. CentOS 8 thêm repo remi + cài php 8 + cài wordpress theo php 8
+
+yum install https://rpms.remirepo.net/enterprise/remi-release-8.rpm -y && \
+yum module install php:remi-8.0 -y && \
+yum --enablerepo=remi install wordpress -y
+
+-- 2. Cài MariaDB + tạo db + tạo user cho wordpress
+
+yum install --setopt=install_weak_deps=False mariadb-server -y && \
+systemctl start mariadb && \
+systemctl --no-pager status mariadb && \
+mysql -e "CREATE DATABASE wordpress; \
+GRANT ALL ON wordpress.* TO 'wordpress'@'localhost' IDENTIFIED BY 'pass'; \
+FLUSH PRIVILEGES; \
+SELECT user,host from mysql.user; \
+SHOW DATABASES"
+
+-- 3. Cho wordpress xài db + user vừa tạo
+
+sed "s/database_name_here/wordpress/g; s/username_here/wordpress/g; s/password_here/pass/g" \
+-i /usr/share/wordpress/wp-config.php
+
+-- 4. Chỉnh virtual host cho phép mọi máy kết nối nào
+
+sed "s/Require local/Require all granted/g" -i /etc/httpd/conf.d/wordpress.conf && \
+systemctl start httpd && \
+systemctl --no-pager status httpd
+
+-- 5. Lấy ip để chạy wordpress trên web
+
+hostname -I 
+
+hoặc
+
+hostname -I | cut -f1 -d' '
+
+hoặc
+
+hostname -I | awk '{print $1}'
+
+http://ip/wordpress
+
+-- HẾT --

@@ -1,0 +1,57 @@
+
+-- 0.0 Tắt apparmor
+
+systemctl stop apparmor && systemctl status apparmor
+
+-- 0.1 Muốn nhanh hơn thì k lấy các metadata này từ kho về
+
+echo 'Acquire::Languages "none";' >> /etc/apt/apt.conf.d/99translation-en && \
+mv /etc/apt/apt.conf.d/50command-not-found /etc/apt/
+
+-- 1. Cài wordpress 5.3
+
+apt update && \
+apt install -y wordpress && \
+systemctl status --no-pager apache2
+
+-- 2. Cài mysql server + tạo db + tạo user
+
+apt install -y mysql-server && \
+systemctl status --no-pager mysql && \
+mysql -e "CREATE USER 'wordpress'@'localhost' IDENTIFIED BY 'pass'; \
+CREATE DATABASE wordpress; \
+GRANT ALL ON wordpress.* TO 'wordpress'@'localhost'; \
+FLUSH PRIVILEGES; \
+SELECT user,host from mysql.user; \
+SHOW DATABASES"
+
+-- 3. Nâng cấp wordpress lên 5.6 = kho của 21.04 + khai báo user, db cho wordpress
+
+apt install -y software-properties-common && \
+add-apt-repository 'deb http://vn.archive.ubuntu.com/ubuntu hirsute main' && \
+add-apt-repository 'deb http://vn.archive.ubuntu.com/ubuntu hirsute universe' && \
+apt install -y wordpress && \
+cp /usr/share/doc/wordpress/examples/config-default.php /etc/wordpress/ && \
+sed "s/database_name_here/wordpress/g; s/username_here/wordpress/g; s/password_here/pass/g" \
+-i /etc/wordpress/config-default.php
+
+-- 4. Tạo virtual host cho apache
+
+curl https://raw.githubusercontent.com/itviet2021/wordpress-rpm-deb-bitnami-lab/main/wordpress.conf \
+-o /etc/apache2/sites-available/wordpress.conf && \
+a2ensite wordpress && \
+systemctl reload apache2
+
+-- cơm thêm
+
+dpkg -S `which a2ensite` && \
+file `which a2ensite` && \
+file `which a2enmod`
+
+-- 5. Chạy wordpress trên web
+
+# hostname -I --> lấy IP
+
+http://ip/blog/
+
+-- HẾT --

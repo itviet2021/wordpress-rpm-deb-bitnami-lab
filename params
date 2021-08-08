@@ -1,0 +1,6 @@
+mode=unattended
+disable-components=varnish,phpmyadmin
+prefix=/opt/wordpress-5.8-0
+base_user=hieurau
+base_password=1
+smtp_enable=1

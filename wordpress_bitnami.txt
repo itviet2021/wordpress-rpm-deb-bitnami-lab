@@ -3,7 +3,7 @@
 
 apt update && apt -y install libtinfo5
 
---> CentOS 8 thì chỉ chạy lệnh dưới
+--> CentOS 7 thì chỉ chạy lệnh dưới
 
 -- Cài bitnami wordpress tự động --> đọc các tham số từ file params
 
